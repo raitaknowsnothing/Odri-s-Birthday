@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Birthday Surprise</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: 'Courier New', monospace;
+        background: #f5f5f5;
+        color: #000;
+        text-align: center;
+        user-select: none;
+    }
+
+    .container {
+        width: 100%;
+        height: 100vh;
+        padding: 20px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .next-btn {
+        margin-top: 40px;
+        font-size: 20px;
+        padding: 10px 30px;
+        border: 2px solid black;
+        background: white;
+        cursor: pointer;
+    }
+
+    /* Game canvas styling */
+    canvas {
+        border: 2px solid black;
+        background: white;
+        margin-top: 20px;
+        image-rendering: pixelated;
+    }
+
+    img, video {
+        max-width: 90%;
+        border: 2px solid black;
+    }
+</style>
+</head>
+
+<body>
+
+<div id="scene1" class="container">
+    <h1>It is your birthday</h1>
+    <button class="next-btn" onclick="showScene(2)">Next</button>
+</div>
+
+<div id="scene2" class="container" style="display:none;">
+    <h1>Here is what you looked like fresh out of the oven</h1>
+    <button class="next-btn" onclick="showScene(3)">Next</button>
+</div>
+
+<div id="scene3" class="container" style="display:none;">
+    <video id="birthdayVideo" width="320" controls>
+        <source src="your-video.mp4" type="video/mp4">
+    </video>
+    <button class="next-btn" onclick="showScene(4)">Next</button>
+</div>
+
+<div id="scene4" class="container" style="display:none;">
+    <p style="max-width:600px; font-size:18px; line-height:1.6;">
+        Years pass as though time has mundanities to get past of.  
+        You blink a few times, suddenly you are 24.  
+        On your special day, there is nothing I want more than for your happiness, peace and fulfilment.  
+        May there never be another day that you have to spend in self doubt, sadness and heaviness.  
+        All these years of knowing you, growing up together and still getting to say these things to you, is unreal!  
+        Somethings truly are, larger than life.
+    </p>
+    <button class="next-btn" onclick="showScene(5)">Next</button>
+</div>
+
+<div id="scene5" class="container" style="display:none;">
+    <img src="your-photo.jpg" alt="Birthday Photo">
+    <p style="margin-top:20px; font-size:18px;">
+        Happiest Birthday to Auddabean.  
+        Hope you always have good cake and people to feed it to you.
+    </p>
+    <button class="next-btn" onclick="showScene(6)">Next</button>
+</div>
+
+<!-- Game Scene -->
+<div id="scene6" class="container" style="display:none;">
+    <h2>Cake Catch Game</h2>
+    <p>Catch 10 cakes!</p>
+    <canvas id="gameCanvas" width="300" height="400"></canvas>
+</div>
+
+<!-- Final Scene -->
+<div id="finalScene" class="container" style="display:none;">
+    <img src="big-cake.png" style="width:200px;">
+    <h1>Fin</h1>
+</div>
+
+<script>
+function showScene(n) {
+    document.querySelectorAll(".container").forEach(e => e.style.display = "none");
+    if (n === 6) startGame();
+    document.getElementById("scene" + n).style.display = "flex";
+}
+
+/* ----------------------------
+       SIMPLE CAKE CATCH GAME
+   ---------------------------- */
+
+function startGame() {
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const cakeImg = new Image();
+    cakeImg.src = "cake.png"; 
+
+    let cakes = [];
+    let score = 0;
+
+    canvas.addEventListener("click", function(event) {
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        cakes = cakes.filter(c => {
+            if (x >= c.x && x <= c.x+40 && y >= c.y && y <= c.y+40) {
+                score++;
+                if (score >= 10) endGame();
+                return false;
+            }
+            return true;
+        });
+    });
+
+    function spawnCake() {
+        cakes.push({
+            x: Math.random() * 260,
+            y: -40,
+            speed: 1 + Math.random() * 2
+        });
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        cakes.forEach(c => {
+            c.y += c.speed;
+            ctx.drawImage(cakeImg, c.x, c.y, 40, 40);
+        });
+
+        cakes = cakes.filter(c => c.y < 400);
+
+        requestAnimationFrame(draw);
+    }
+
+    setInterval(spawnCake, 800);
+    draw();
+}
+
+function endGame() {
+    document.getElementById("scene6").style.display = "none";
+    document.getElementById("finalScene").style.display = "flex";
+}
+</script>
+
+</body>
+</html>
